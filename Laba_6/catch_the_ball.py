@@ -396,6 +396,56 @@ def game_event_main_analysis_function(massive_of_parameters, hard_ball_parameter
     return massive_of_parameters, hard_ball_parameters, game_over_tic_nums, score_num, stop_true_parameter
 
 
+def interface_blit_function(screen_of_game, score_title, score_num_title, time_title, time_num_title):
+    """
+    Отображает интерфейс игры в определнных местах на экране
+    :param screen_of_game: поверхность на которой будет отображаться интерфейс
+    :param score_title: надпись "SCORE"
+    :param score_num_title: число-надпись начисленных очков
+    :param time_title: надпись "TIME"
+    :param time_num_title: число-надпись оставшегося времени
+    """
+    screen_of_game.blit(time_num_title, (1130, 10))
+    screen_of_game.blit(time_title, (1040, 10))
+    screen_of_game.blit(score_title, (10, 10))
+    screen_of_game.blit(score_num_title, (125, 10))
+
+
+def interface_elements_updating_function(font, score_num, game_over_tic_nums,
+                                         working_time, fps):
+    """
+    Обновляет переменные интерфейса игры, чтобы передать обновленные переменные функции их отрисовывающей на экран
+    :param font: слой рисовония
+    :param score_num: счёт
+    :param game_over_tic_nums: время дляительности одной игры
+    :param working_time: время работы программы (в тиках)
+    :param fps: фпс
+    """
+    time_num_title = font.render(str(int((game_over_tic_nums - working_time) / fps) // 10 + (
+            int((game_over_tic_nums - working_time) / fps) % 10) / 10), False, (255, 255, 255))
+    score_num_title = font.render(str(score_num), False, (255, 255, 255))
+    return time_num_title, score_num_title
+
+
+def game_interface_function(screen_of_game, score_title, time_title, font,
+                            score_num, game_over_tic_nums, working_time, fps):
+    """
+    Функция объединяющая всю работу с интерфейсом игры
+    :param screen_of_game: поверхность на которой будет отображаться интерфейс
+    :param score_title: надпись "SCORE"
+    :param time_title: надпись "TIME"
+    :param font: слой рисовония
+    :param score_num: счёт
+    :param game_over_tic_nums: время дляительности одной игры
+    :param working_time: время работы программы (в тиках)
+    :param fps: фпс
+    """
+    time_num_title, score_num_title = interface_elements_updating_function(font, score_num,
+                                                                           game_over_tic_nums,
+                                                                           working_time, fps)
+    interface_blit_function(screen_of_game, score_title, score_num_title, time_title, time_num_title)
+
+
 pygame.display.update()
 clock = pygame.time.Clock()
 finished = False
@@ -429,14 +479,8 @@ while not finished:
     clock.tick(FPS)
     if game_over_time - program_work_time <= 0:
         finished = True
-    num2 = new_font.render(str(int((game_over_time - program_work_time) / FPS) // 10 + (
-            int((game_over_time - program_work_time) / FPS) % 10) / 10), False, (255, 255, 255))
-    num = new_font.render(str(score), False, (255, 255, 255))
-    screen.blit(num2, (1130, 10))
-    screen.blit(time_table, (1040, 10))
-    screen.blit(score_table, (10, 10))
-    screen.blit(num, (125, 10))
     program_work_time = pygame.time.get_ticks()
+    game_interface_function(screen, score_table, time_table, new_font, score, game_over_time, program_work_time, FPS)
     hard_ball_param, time_of_hard_ball, stop_true = hard_ball_main_function(hard_ball_param, program_work_time,
                                                                             time_of_hard_ball, stop_true, FPS)
     ball_params, time_of_simple_balls_appearing, time_of_simple_balls_dying = simple_balls_main_function(
